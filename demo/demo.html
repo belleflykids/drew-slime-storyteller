@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Drew's Slime Storyteller — Demo</title>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:"Trebuchet MS","Comic Sans MS",system-ui,sans-serif; background:linear-gradient(180deg,#ffe9f6 0%,#e9e4ff 55%,#d9f2ff 100%); color:#3b2350;}
+  .page{min-height:100vh; min-height:100dvh; max-width:640px; margin:0 auto; padding:18px 16px 40px;}
+  header{display:flex; gap:14px; align-items:center; background:#fff; border:3px solid #f7c948; border-radius:24px; padding:14px; box-shadow:0 8px 20px rgba(83,40,156,.15);}
+  header img{width:84px; height:84px; border-radius:50%; object-fit:cover; border:3px solid #ff6fb5; flex:0 0 84px;}
+  header h1{margin:0; font-size:26px; line-height:1.15; color:#7b2fbe;}
+  header p{margin:6px 0 0; font-size:15px; font-weight:700; color:#6b5a7a;}
+  .card{background:#fff; border-radius:22px; padding:16px; margin-top:16px; box-shadow:0 8px 20px rgba(83,40,156,.12);}
+  .card h2{margin:0 0 4px; font-size:20px; color:#7b2fbe;}
+  .card .lead{margin:0 0 12px; font-size:15px; font-weight:700; color:#6b5a7a;}
+  .opts{display:flex; flex-wrap:wrap; gap:10px;}
+  .opt{display:flex; align-items:center; gap:8px; min-height:52px; padding:10px 14px; border:2.5px solid #d9c8ee; border-radius:16px; background:#faf7ff; font:inherit; font-weight:800; font-size:16px; color:#3b2350; cursor:pointer;}
+  .opt .dot{width:22px; height:22px; border-radius:50%; border:2px solid rgba(0,0,0,.12); flex:0 0 22px;}
+  .opt[aria-pressed="true"]{border-color:#7b2fbe; background:#f3e8ff; box-shadow:0 0 0 3px #e9d5ff;}
+  .opt[aria-pressed="true"]::after{content:"✓"; color:#e83e8c; font-weight:900;}
+  .name-row{display:flex; gap:10px; flex-wrap:wrap;}
+  .name-row input{flex:1 1 200px; font:inherit; font-weight:800; color:#3b2350; background:#faf7ff; border:2.5px solid #d9c8ee; border-radius:14px; padding:13px 16px; min-height:54px;}
+  .name-row input:focus{outline:3px solid #ffb3d9; border-color:#e83e8c;}
+  .btn{display:inline-flex; align-items:center; justify-content:center; min-height:56px; padding:14px 22px; border-radius:16px; border:0; font:inherit; font-weight:900; font-size:18px; cursor:pointer;}
+  .btn-primary{background:linear-gradient(180deg,#ff6fb5,#e83e8c); color:#fff; box-shadow:0 6px 0 #b32a6e;}
+  .btn-ghost{background:#fff; color:#7b2fbe; border:2.5px solid #d9c8ee;}
+  .btn:disabled{opacity:.45; cursor:default; box-shadow:none;}
+  .btn-wide{width:100%;}
+  .hint{font-size:14px; font-weight:700; color:#6b5a7a; margin:10px 0 0;}
+  .play-area{min-height:340px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; text-align:center;}
+  .swirl{width:220px; height:220px; border-radius:50%; box-shadow:inset 0 -14px 24px rgba(0,0,0,.12), inset 0 10px 18px rgba(255,255,255,.55), 0 12px 24px rgba(83,40,156,.20); border:4px solid #fff;}
+  .play-area h3{margin:0; font-size:24px; color:#7b2fbe;}
+  .play-area .recipe{margin:0; font-size:15px; font-weight:700; color:#6b5a7a;}
+  .story-box{border-top:2px dashed #d9c8ee; padding-top:14px; margin-top:14px;}
+  .story-row{display:flex; gap:12px; align-items:flex-start; margin-top:14px;}
+  .story-row img{width:96px; height:96px; flex:0 0 96px; border-radius:50%; object-fit:cover; border:3px solid #ff6fb5; background:#faf7ff;}
+  .story-bubble{flex:1; background:#faf7ff; border:2px dashed #d9c8ee; border-radius:16px; padding:13px 15px; font-weight:800; color:#5b2a86; font-size:17px; line-height:1.55; min-height:96px; text-align:left;}
+  .story-dots span{display:inline-block; font-size:28px; line-height:1; color:#e83e8c; animation:story-bob 1.1s ease-in-out infinite;}
+  .story-dots span:nth-child(2){animation-delay:.18s;}
+  .story-dots span:nth-child(3){animation-delay:.36s;}
+  @keyframes story-bob{0%,100%{transform:translateY(0); opacity:.45;} 50%{transform:translateY(-6px); opacity:1;}}
+  .again-btn{width:100%; margin-top:12px;}
+  footer{margin-top:18px; text-align:center; font-size:13px; font-weight:700; color:#6b5a7a;}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <img src="assets/drew.png" alt="Drew, the little blue spider" />
+    <div>
+      <h1>Drew&rsquo;s Slime Storyteller</h1>
+      <p>Pick a slime, mix it up, then hear Drew tell its story.</p>
+    </div>
+  </header>
+
+  <section class="card" aria-labelledby="s1h">
+    <h2 id="s1h">1 &middot; Scoop your slime</h2>
+    <p class="lead">Pick a pan of slime to start.</p>
+    <div class="opts" id="baseOpts"></div>
+  </section>
+
+  <section class="card" aria-labelledby="s2h">
+    <h2 id="s2h">2 &middot; Add color</h2>
+    <p class="lead">Pick one or two syrups — tap a picked syrup again to take it out.</p>
+    <div class="opts" id="syrupOpts"></div>
+  </section>
+
+  <section class="card" aria-labelledby="s3h">
+    <h2 id="s3h">3 &middot; Pick your toppings</h2>
+    <p class="lead">Sprinkle in your favorites — up to four.</p>
+    <div class="opts" id="toppingOpts"></div>
+  </section>
+
+  <section class="card" aria-labelledby="s4h">
+    <h2 id="s4h">4 &middot; Name your creation</h2>
+    <p class="lead">Drew thought up a name for you — keep it, type your own, or tap for a new one.</p>
+    <div class="name-row">
+      <input id="nameInput" type="text" maxlength="40" aria-label="Name your creation" />
+      <button class="btn btn-ghost" id="newNameBtn" type="button">New name</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <button class="btn btn-primary btn-wide" id="mixBtn" type="button" disabled>Mix my slime!</button>
+    <p class="hint" id="mixHint">Pick a slime first, then press Mix my slime!</p>
+    <div class="play-area" id="playArea" hidden>
+      <div class="swirl" id="swirl" role="img" aria-label="Your shiny slime swirl"></div>
+      <h3 id="swirlName"></h3>
+      <p class="recipe" id="swirlRecipe"></p>
+    </div>
+    <div class="story-box" id="storyBox" hidden>
+      <button class="btn btn-primary btn-wide" id="storyBtn" type="button">Hear Drew&rsquo;s story</button>
+      <div class="story-row" id="storyRow" hidden>
+        <img src="assets/drew.png" alt="Drew, the little blue spider" />
+        <div class="story-bubble" id="storyBubble" role="status" aria-live="polite"></div>
+      </div>
+      <button class="btn btn-ghost again-btn" id="storyAgainBtn" type="button" hidden>Tell it again</button>
+    </div>
+    <div style="margin-top:14px;">
+      <button class="btn btn-ghost btn-wide" id="resetBtn" type="button">Start over</button>
+    </div>
+  </section>
+
+  <footer>Drew&rsquo;s Slime Storyteller &middot; Bellefly Kids &middot; Demo mode — stories come from built-in examples until a Worker URL is set.</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* STORYTELLER_URL — the one place the story service address lives.
+     Paste the Storyteller Worker URL here to go live. While it is
+     empty ("") the page runs in demo mode: "Hear Drew's story"
+     tells a built-in canned story at once, with no network call. */
+  const STORYTELLER_URL = "";
+
+  var BASES = [
+    { name: "Really Red",   hex: "#f43f6e", parts: ["red"] },
+    { name: "Drew Blue",    hex: "#2f8fe8", parts: ["blue"] },
+    { name: "Sunny Yellow", hex: "#ffcf3f", parts: ["yellow"] },
+    { name: "Snowy White",  hex: "#f7f2e9", parts: ["white"] }
+  ];
+  var SYRUPS = [
+    { name: "Bubblegum Pink", hex: "#ff6fb5", parts: ["red", "white"] },
+    { name: "Drew Blue",      hex: "#2f8fe8", parts: ["blue"] },
+    { name: "Grape Soda",     hex: "#8b5cf6", parts: ["red", "blue"] },
+    { name: "Mint Splash",    hex: "#2fd3a6", parts: ["blue", "yellow", "white"] },
+    { name: "Lemon Zest",     hex: "#ffcf3f", parts: ["yellow"] },
+    { name: "Peachy",         hex: "#ff9e66", parts: ["red", "yellow", "white"] },
+    { name: "Coral",          hex: "#ff6b57", parts: ["red", "yellow"] },
+    { name: "Aqua Splash",    hex: "#2fd4d4", parts: ["blue", "yellow"] },
+    { name: "Lavender",       hex: "#b79af2", parts: ["red", "blue", "white"] },
+    { name: "Rose Red",       hex: "#f43f6e", parts: ["red"] },
+    { name: "Lime Pop",       hex: "#8ede4e", parts: ["blue", "yellow"] },
+    { name: "Pearl White",    hex: "#efe9fb", parts: ["white"] },
+    { name: "Sky Blue",       hex: "#7cc4ff", parts: ["blue", "white"] },
+    { name: "Tangerine",      hex: "#ff8c42", parts: ["red", "yellow"] },
+    { name: "Berry Purple",   hex: "#7b4fd0", parts: ["red", "blue"] },
+    { name: "Cocoa Fudge",    hex: "#a0663a", parts: ["red", "blue", "yellow"] }
+  ];
+  var TOPPINGS = ["Glitter", "Sprinkles", "Foam Beads", "Jelly Cubes", "Confetti", "Crunchy Bits", "Cloud Crunch", "Snow Flakes", "Cookie Crumbs", "Sparkle Sand", "Foam Cubes", "Pom Poms", "Gummy Worms"];
+  var NAME_IDEAS = ["Bubblegum Bubble Pop", "Snowy Pink Bubble Pop", "Sunny Swirl Surprise", "Blueberry Giggle Swirl", "Lemon Zest Twinkle Pop", "Rainbow Giggle Swirl", "Cotton Candy Cloud Pop", "Strawberry Sunshine Swirl"];
+  var MIX_RESULTS = {
+    "red":             { name: "Red",    hex: "#f43f6e" },
+    "blue":            { name: "Blue",   hex: "#2f8fe8" },
+    "yellow":          { name: "Yellow", hex: "#ffcf3f" },
+    "blue,red":        { name: "Purple", hex: "#8b5cf6" },
+    "red,yellow":      { name: "Orange", hex: "#ff8c42" },
+    "blue,yellow":     { name: "Green",  hex: "#3fbf5f" },
+    "blue,red,yellow": { name: "Brown",  hex: "#8a5a2b" }
+  };
+  var PASTELS = { "Red": "#ffb3c6", "Blue": "#a8d8ff", "Yellow": "#ffe98a", "Purple": "#cdbcf5", "Orange": "#ffc49a", "Green": "#a8e6b0", "Brown": "#c9a582" };
+
+  /* Word lists for the kind-words check, copied from the live game so a
+     story is checked here exactly the way a name is checked there. */
+        var NAMER_BANNED_WORDS = ["magic","magical","mystical","scary","frightening","frightened","frighten","spooky","haunted","ghost","ghosts","ghostly","monster","monsters","witch","witches","wizard","vampire","zombie","skeleton","demon","devil","evil","nightmare","horror","creepy","terrified","terror","blood","bloody","kill","killing","death","dead","die","dying","gun","guns","knife","knives","weapon","weapons","hate","hates","stupid","dumb","ugly","fat","sexy","kiss","kissing","romance","drunk","beer","wine","birthday","christmas","xmas","easter","halloween","thanksgiving","valentine","valentines","holiday","holidays","hanukkah","chanukah","kwanzaa","diwali","ramadan","eid","santa","reindeer","fireworks"];
+        var NAMER_BANNED_PHRASES = ["new year","new years","st patrick","saint patrick","independence day","fourth of july","groundhog day","april fools","mothers day","fathers day","trick or treat","jack o lantern"];
+
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+
+  var state = { base: null, syrups: [], toppings: [] };
+
+  function pickName(){ return NAME_IDEAS[Math.floor(Math.random() * NAME_IDEAS.length)]; }
+
+  function buildOpts(){
+    $("baseOpts").innerHTML = BASES.map(function(b, i){
+      return '<button type="button" class="opt" data-base="' + i + '" aria-pressed="false"><span class="dot" style="background:' + b.hex + '"></span>' + esc(b.name) + '</button>';
+    }).join("");
+    $("syrupOpts").innerHTML = SYRUPS.map(function(s, i){
+      return '<button type="button" class="opt" data-syrup="' + i + '" aria-pressed="false"><span class="dot" style="background:' + s.hex + '"></span>' + esc(s.name) + '</button>';
+    }).join("");
+    $("toppingOpts").innerHTML = TOPPINGS.map(function(t, i){
+      return '<button type="button" class="opt" data-topping="' + i + '" aria-pressed="false">' + esc(t) + '</button>';
+    }).join("");
+  }
+
+  function syncPressed(){
+    Array.prototype.forEach.call(document.querySelectorAll("[data-base]"), function(btn){
+      btn.setAttribute("aria-pressed", String(state.base === Number(btn.getAttribute("data-base"))));
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-syrup]"), function(btn){
+      btn.setAttribute("aria-pressed", String(state.syrups.indexOf(Number(btn.getAttribute("data-syrup"))) !== -1));
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-topping]"), function(btn){
+      btn.setAttribute("aria-pressed", String(state.toppings.indexOf(Number(btn.getAttribute("data-topping"))) !== -1));
+    });
+    $("mixBtn").disabled = (state.base === null);
+    $("mixHint").textContent = state.base === null
+      ? "Pick a slime first, then press Mix my slime!"
+      : "Ready! Press Mix my slime to swirl it up.";
+  }
+
+  function mixedColour(){
+    if (state.base === null) return { name: "Rainbow", hex: "#cdbcf5" };
+    var parts = {}, i, p;
+    BASES[state.base].parts.forEach(function(x){ parts[x] = true; });
+    state.syrups.forEach(function(si){ SYRUPS[si].parts.forEach(function(x){ parts[x] = true; }); });
+    var primes = ["red", "blue", "yellow"].filter(function(x){ return parts[x]; });
+    var white = !!parts["white"];
+    if (!primes.length) return { name: "White", hex: "#f7f2e9" };
+    var key = primes.slice().sort().join(",");
+    var found = MIX_RESULTS[key] || { name: "Rainbow", hex: "#cdbcf5" };
+    if (white) return { name: "Soft " + found.name, hex: PASTELS[found.name] || found.hex };
+    return found;
+  }
+
+  function recipeText(){
+    var base = BASES[state.base].name;
+    var syrups = state.syrups.length ? " + " + state.syrups.map(function(i){ return SYRUPS[i].name; }).join(" & ") + " syrup" : " (no syrup)";
+    var tops = state.toppings.length ? state.toppings.map(function(i){ return TOPPINGS[i]; }).join(", ") : "no toppings";
+    return base + " slime" + syrups + " — Toppings: " + tops;
+  }
+
+  function creationName(){
+    var v = $("nameInput").value.trim();
+    return v || "My Slime Creation";
+  }
+
+  /* ---- Storyteller: same flow as the game copy ---- */
+  var storyCached = "", storyThinking = false;
+
+  function namerTokens(s){
+    return s.toLowerCase().replace(/['’‘]/g, "").replace(/[^a-z]+/g, " ").split(/\s+/).filter(Boolean);
+  }
+  function storySafeName(){
+    var v = creationName(), i, toks;
+    if (/[0-9]/.test(v)) return "My Slime Creation";
+    if (/(https?|www\.|\.com|\.net|\.org|@)/i.test(v)) return "My Slime Creation";
+    toks = namerTokens(v);
+    for (i = 0; i < toks.length; i++){
+      if (NAMER_BANNED_WORDS.indexOf(toks[i]) !== -1) return "My Slime Creation";
+    }
+    return v;
+  }
+  function storyColours(){
+    if (state.base === null) return "soft rainbow";
+    var parts = [BASES[state.base].name];
+    state.syrups.slice(0, 2).forEach(function(i){ parts.push(SYRUPS[i].name); });
+    return parts.join(", ").replace(/, ([^,]*)$/, " and $1").toLowerCase();
+  }
+  function storyTopping(){
+    if (!state.toppings.length) return "soft sparkles";
+    return TOPPINGS[state.toppings[0]].toLowerCase();
+  }
+  function cannedStory(){
+    var name = storySafeName(), colours = storyColours(), topping = storyTopping();
+    var variants = [
+      "Drew loves your " + name + "! Its " + colours + " swirl together so softly, and a sprinkle of " + topping + " on top makes it the happiest slime in the garden.",
+      "Your " + name + " is ready to play in the garden! Drew gives the " + colours + " swirls a soft wiggle, and the " + topping + " twinkle brightly while you both giggle together."
+    ];
+    return variants[Math.floor(Math.random() * variants.length)];
+  }
+  function storyClean(story){
+    var marks, firstEnd = -1, i, s1, s2, tokens, padded;
+    if (typeof story !== "string") return null;
+    story = story.trim().replace(/\s+/g, " ");
+    if (!story || story.length > 220) return null;
+    if (/[0-9]/.test(story)) return null;
+    if (/(https?|www\.|\.com|\.net|\.org|@)/i.test(story)) return null;
+    marks = story.match(/[.!?]/g) || [];
+    if (marks.length !== 2) return null;
+    if (story.indexOf("?") !== -1) return null;
+    if (!/^[A-Za-z][A-Za-z ,'\-!\u2019]*[.!]$/.test(story)) return null;
+    for (i = 0; i < story.length; i++){
+      if (story[i] === "." || story[i] === "!"){ firstEnd = i; break; }
+    }
+    if (firstEnd < 0) return null;
+    s1 = story.slice(0, firstEnd + 1);
+    s2 = story.slice(firstEnd + 1).trim();
+    if (!s2 || !/[.!]$/.test(s2)) return null;
+    if (/[.!?]/.test(s2.slice(0, -1))) return null;
+    if (s1.split(/\s+/).filter(Boolean).length < 3) return null;
+    if (s2.split(/\s+/).filter(Boolean).length < 3) return null;
+    if (s1.charAt(0) !== s1.charAt(0).toUpperCase()) return null;
+    if (s2.charAt(0) !== s2.charAt(0).toUpperCase()) return null;
+    tokens = namerTokens(story);
+    for (i = 0; i < tokens.length; i++){
+      if (NAMER_BANNED_WORDS.indexOf(tokens[i]) !== -1) return null;
+    }
+    padded = " " + tokens.join(" ") + " ";
+    for (i = 0; i < NAMER_BANNED_PHRASES.length; i++){
+      if (padded.indexOf(" " + NAMER_BANNED_PHRASES[i] + " ") !== -1) return null;
+    }
+    return story;
+  }
+  function showStory(text){
+    storyCached = text;
+    $("storyBubble").textContent = text;
+    $("storyRow").hidden = false;
+    $("storyAgainBtn").hidden = false;
+    $("storyBtn").hidden = true;
+  }
+  function showStoryThinking(){
+    $("storyBubble").innerHTML = '<span class="story-dots" aria-label="Drew is thinking"><span>.</span><span>.</span><span>.</span></span>';
+    $("storyRow").hidden = false;
+    $("storyAgainBtn").hidden = true;
+    $("storyBtn").hidden = true;
+  }
+  function clearStory(){
+    storyCached = ""; storyThinking = false;
+    $("storyRow").hidden = true;
+    $("storyBubble").innerHTML = "";
+    $("storyAgainBtn").hidden = true;
+    $("storyBtn").hidden = false;
+  }
+  function askForStory(){
+    var controller, timer, payload;
+    if (storyThinking) return;
+    if (storyCached){ showStory(storyCached); return; }
+    if (!STORYTELLER_URL){ showStory(cannedStory()); return; }
+    storyThinking = true;
+    showStoryThinking();
+    controller = ("AbortController" in window) ? new AbortController() : null;
+    timer = controller ? setTimeout(function(){ try { controller.abort(); } catch (e) {} }, 10000) : null;
+    payload = {
+      name: creationName(),
+      base: (BASES[state.base] || { name: "" }).name,
+      syrups: state.syrups.slice(0, 2).map(function(i){ return SYRUPS[i].name; }),
+      toppings: state.toppings.slice(0, 4).map(function(i){ return TOPPINGS[i]; })
+    };
+    fetch(STORYTELLER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller ? controller.signal : undefined
+    }).then(function(resp){
+      if (!resp.ok) throw new Error("story " + resp.status);
+      return resp.json();
+    }).then(function(data){
+      if (timer) clearTimeout(timer);
+      storyThinking = false;
+      var clean = data ? storyClean(data.story || data.text || "") : null;
+      showStory(clean || cannedStory());
+    }).catch(function(){
+      if (timer) clearTimeout(timer);
+      storyThinking = false;
+      showStory(cannedStory());
+    });
+  }
+
+  function doMix(){
+    if (state.base === null) return;
+    var mixed = mixedColour();
+    var light = "#ffffff";
+    $("swirl").style.background =
+      "radial-gradient(circle at 35% 30%, rgba(255,255,255,.75), rgba(255,255,255,0) 46%), " +
+      "conic-gradient(from 0deg, " + mixed.hex + ", " + light + ", " + mixed.hex + ", " + mixed.hex + ", " + light + ", " + mixed.hex + ")";
+    $("swirlName").textContent = creationName();
+    $("swirlRecipe").textContent = mixed.name + " swirl — " + recipeText();
+    $("playArea").hidden = false;
+    $("storyBox").hidden = false;
+    clearStory();
+    $("storyBox").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function resetAll(){
+    state = { base: null, syrups: [], toppings: [] };
+    $("nameInput").value = pickName();
+    $("playArea").hidden = true;
+    $("storyBox").hidden = true;
+    clearStory();
+    syncPressed();
+  }
+
+  $("baseOpts").addEventListener("click", function(e){
+    var btn = e.target.closest("[data-base]");
+    if (!btn) return;
+    state.base = Number(btn.getAttribute("data-base"));
+    syncPressed();
+  });
+  $("syrupOpts").addEventListener("click", function(e){
+    var btn = e.target.closest("[data-syrup]");
+    if (!btn) return;
+    var i = Number(btn.getAttribute("data-syrup"));
+    var at = state.syrups.indexOf(i);
+    if (at !== -1) state.syrups.splice(at, 1);
+    else if (state.syrups.length < 2) state.syrups.push(i);
+    syncPressed();
+  });
+  $("toppingOpts").addEventListener("click", function(e){
+    var btn = e.target.closest("[data-topping]");
+    if (!btn) return;
+    var i = Number(btn.getAttribute("data-topping"));
+    var at = state.toppings.indexOf(i);
+    if (at !== -1) state.toppings.splice(at, 1);
+    else if (state.toppings.length < 4) state.toppings.push(i);
+    syncPressed();
+  });
+  $("newNameBtn").addEventListener("click", function(){ $("nameInput").value = pickName(); });
+  $("mixBtn").addEventListener("click", doMix);
+  $("storyBtn").addEventListener("click", askForStory);
+  $("storyAgainBtn").addEventListener("click", function(){ if (storyCached) showStory(storyCached); });
+  $("resetBtn").addEventListener("click", resetAll);
+
+  buildOpts();
+  $("nameInput").value = pickName();
+  syncPressed();
+})();
+</script>
+</body>
+</html>
