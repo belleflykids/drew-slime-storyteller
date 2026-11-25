@@ -108,6 +108,12 @@
       .swirl-stage svg{width:100%; height:auto; display:block;}
       .swirl-anim{animation:swirlspin .5s ease;}
       @keyframes swirlspin{0%{transform:rotate(0deg) scale(1,1);}35%{transform:rotate(4deg) scale(1.06,.94);}65%{transform:rotate(-3deg) scale(.96,1.05);}100%{transform:rotate(0deg) scale(1,1);}}
+      .play-hints button{background:linear-gradient(180deg, var(--panel), var(--chip)); border:2px solid var(--line); color:var(--purple-deep); border-radius:999px; padding:9px 15px; min-height:44px; font-weight:900; font-size:14.5px; line-height:1.2; box-shadow:inset 0 2px 0 var(--edge-hi), inset 0 -3px 0 rgba(83,40,156,.07), 0 5px 10px rgba(83,40,156,.10);}
+      .play-hints button:active{transform:scale(.95);}
+      #playGL{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; display:block;}
+      .play-stage #playSwirl{opacity:0;}
+      .play-stage.glfail #playGL{display:none;}
+      .play-stage.glfail #playSwirl{opacity:1;}
       /* ---------- play with your swirl ---------- */
       .play-card{padding-bottom:18px;}
       .play-stage{
@@ -400,11 +406,9 @@
       footer a{color:var(--pink); text-decoration:none;}
       footer a:hover{text-decoration:underline;}
 
-      .sound-btn{
-        position:fixed; right:14px; bottom:14px; z-index:20; width:56px; height:56px; border-radius:50%;
-        border:2.5px solid var(--line); background:linear-gradient(180deg, var(--panel), var(--panel2)); box-shadow:var(--lift-sm), inset 0 2px 0 var(--edge-hi), inset 0 -4px 0 rgba(83,40,156,.10);
-        font-size:24px; display:grid; place-items:center;
-      }
+      /* (The sound toggle used to float fixed at the bottom-right, where it
+         covered the last words of Drew's story. It now sits in the header
+         button row instead, so it can never cover the story text.) */
       /* gooey stretch strands inside the play picture — soft tapered
          filled ribbons that sag and droop, plus a faint film only,
          never a solid lump of slime and never stiff spikes */
@@ -445,6 +449,7 @@
           </div>
           <div class="hero-btns">
             <button class="btn btn-ghost" id="hearDrew" type="button">Hear Drew say hi</button>
+            <button class="btn btn-ghost" id="soundBtn" type="button" aria-label="Turn sound off" aria-pressed="true">🔊</button>
           </div>
         </div>
       </header>
@@ -502,8 +507,10 @@
             <div class="sub">Your very own swirl, big and touchable</div>
             <div class="play-stage" id="playStage" role="button" tabindex="0" aria-label="Play with your swirl: tap to poke it, drag to stretch it, press and hold to squish it">
               <div class="play-swirl" id="playSwirl"></div>
+              <canvas id="playGL" aria-hidden="true"></canvas>
             </div>
-            <div class="play-hints" aria-hidden="true"><span>Poke it</span><span>Drag to stretch</span><span>Hold to squish</span><span id="crunchHint" hidden>Crunchy pieces crackle!</span></div>
+            <div class="chips" id="playModes" style="justify-content:center;margin-top:10px"><button class="chip" type="button" data-m="pull" aria-pressed="true">Pull</button><button class="chip" type="button" data-m="stir" aria-pressed="false">Stir</button></div>
+            <div class="play-hints"><button type="button" data-act="poke">Poke it</button><button type="button" data-act="stretch">Stretch it</button><button type="button" data-act="squish">Squish it</button><span id="crunchHint" hidden>Crunchy pieces crackle!</span></div>
             <p class="play-note" id="playNote" aria-live="polite">Poke it and watch it wobble. Drag across it to stretch it sideways across the plate. Press and hold to squish it wide — then let go and watch it settle back.</p>
           </section>
         </div>
@@ -649,8 +656,6 @@
         Watch the full video on YouTube @belleflykids · Instagram @belleflykids
       </footer>
     </div>
-
-    <button class="sound-btn" id="soundBtn" type="button" aria-label="Turn sound off" aria-pressed="true">🔊</button>
 
     <script>
     (function(){
@@ -915,12 +920,12 @@
       function isLightBase(){ return hexLuminance(BASES[state.base].hex) >= 0.72; }
       function marbleColor(hex, amt){
         if (!hex) return hex;
-        if (isLightBase()) return mix(hex, "#ffffff", amt == null ? 0.58 : amt);
+        if (isLightBase()) return mix(hex, "#ffffff", amt == null ? 0.30 : amt);
         return hex;
       }
       function marbleSecond(hex){
         if (!hex) return hex;
-        if (isLightBase()) return mix(hex, "#ffffff", 0.46);
+        if (isLightBase()) return mix(hex, "#ffffff", 0.24);
         return shade(hex, -24);
       }
       function gradStops(){
@@ -1068,8 +1073,8 @@
         /* on a light base the ribbons stay pale and translucent too —
            thinner, softer, and lifted toward white, never dark */
         out += swirl(spiralPath(100, 130, 6, 42, 0.6, 1.2), light ? shade(base,-8) : shade(base,-26), light ? 9 : 12, light ? 0.18 : 0.34, softId);
-        if (s1) out += swirl(spiralPath(96, 124, 5, 34, 2.4, 1.3), marbleColor(s1), light ? 8 : 11, light ? 0.26 : 0.52, softId);
-        if (s2) out += swirl(spiralPath(106, 140, 4, 27, 4.2, 1.15), marbleColor(s2, 0.50), light ? 7 : 10, light ? 0.24 : 0.50, softId);
+        if (s1) out += swirl(spiralPath(96, 124, 5, 34, 2.4, 1.3), marbleColor(s1), light ? 8 : 11, light ? 0.36 : 0.52, softId);
+        if (s2) out += swirl(spiralPath(106, 140, 4, 27, 4.2, 1.15), marbleColor(s2, 0.30), light ? 7 : 10, light ? 0.34 : 0.50, softId);
         else if (s1) out += swirl(spiralPath(106, 140, 4, 27, 4.2, 1.15), light ? mix(s1, "#ffffff", 0.66) : shade(s1, 52), 8, light ? 0.20 : 0.34, softId);
         return out;
       }
@@ -1420,14 +1425,24 @@
            blush through cream slime, never a dark muddy swirl. A real
            mix is the exception: its brand-new colour shows at full
            strength, marbled boldly like the Rainbow Swirl photo. */
-        var w1 = (light && !mixed) ? 7 : 10, o1 = (light && !mixed) ? 0.24 : 0.42;
-        var w2 = (light && !mixed) ? 6 : 8,  o2 = (light && !mixed) ? 0.20 : 0.36;
-        if (s1) out += swirl(spiralPath(100, 100, 5, 72, 0.5, 1.9), mixed ? s1 : marbleColor(s1), w1, o1, softId);
-        if (s2) out += swirl(spiralPath(100, 100, 4, 60, 2.7, 1.8), mixed ? s2 : marbleSecond(s2), w2, o2, softId);
-        else if (s1) out += swirl(spiralPath(100, 100, 4, 60, 2.7, 1.8), mixed ? shade(s1, 46) : (light ? mix(s1, "#ffffff", 0.68) : shade(s1, 46)), w2, (light && !mixed) ? 0.17 : 0.30, softId);
-        if (s1) out += swirl(spiralPath(100, 100, 3, 38, 4.4, 1.7), mixed ? mix(s1, base, 0.35) : (light ? mix(marbleColor(s1), base, 0.45) : mix(s1, base, 0.35)), (light && !mixed) ? 5 : 7, (light && !mixed) ? 0.18 : 0.32, softId);
+        /* BOLD swirls (Nov 2026 — the mixed slime must LOOK mixed, like
+           the storyboard picture): the colours the child picked show as
+           themselves, wide and glossy — the first syrup's own colour
+           leads, the colour-mix lesson colour rides beside it, and a
+           second syrup gets its own ribbon too. On a light base the
+           ribbons stay a gentle tint, just a stronger one. */
+        var raw1 = syrupHex(0), raw2 = syrupHex(1);
+        var w1 = light ? 11 : 15, o1 = light ? 0.45 : 0.58;
+        var w2 = light ? 9 : 12,  o2 = light ? 0.40 : 0.48;
+        var w3 = light ? 8 : 10,  o3 = light ? 0.36 : 0.42;
+        if (raw1) out += swirl(spiralPath(100, 100, 5, 72, 0.5, 1.9), marbleColor(raw1), w1, o1, softId);
+        if (mixed) out += swirl(spiralPath(100, 100, 4, 60, 2.7, 1.8), s1, w2, o2, softId);
+        else if (raw2) out += swirl(spiralPath(100, 100, 4, 60, 2.7, 1.8), marbleSecond(raw2), w2, o2, softId);
+        else if (raw1) out += swirl(spiralPath(100, 100, 4, 60, 2.7, 1.8), marbleSecond(raw1), w2, (light ? 0.32 : 0.38), softId);
+        if (raw2) out += swirl(spiralPath(100, 100, 3, 38, 4.4, 1.7), marbleColor(raw2), w3, o3, softId);
+        else if (raw1) out += swirl(spiralPath(100, 100, 3, 38, 4.4, 1.7), mix(raw1, base, 0.35), (light ? 6 : 8), (light ? 0.28 : 0.34), softId);
         out += '<path d="'+spiralPath(100, 100, 3, 76, 1.1, 2.3)+'" stroke="'+shade(base, light ? -18 : -55)+'" stroke-width="2.2" fill="none" stroke-linecap="round" opacity="'+(light ? 0.08 : 0.15)+'"/>';
-        out += '<path d="'+spiralPath(100, 100, 3, 76, 1.1, 2.3)+'" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.13" transform="translate(-1.2 -1.6)"/>';
+        out += '<path d="'+spiralPath(100, 100, 3, 76, 1.1, 2.3)+'" stroke="#ffffff" stroke-width="5.5" fill="none" stroke-linecap="round" opacity="0.24" transform="translate(-1.2 -1.6)"/>';
         return out;
       }
       /* A FEW small topping pieces sitting ON TOP of the photo — three
@@ -1574,6 +1589,13 @@
              the play script moves it under the fingertip, presses it in,
              and lets it spring back */
           out += '<g class="pm-dent" opacity="0" clip-path="url(#playC)"><ellipse cx="0" cy="0" rx="30" ry="21" fill="url(#playDent)"/><ellipse cx="0" cy="1" rx="16" ry="10.5" fill="#2a1150" opacity="0.20"/><path d="M-23,10 C-9,18.5 11,18.5 24,8" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.5"/></g>';
+          /* sparkle burst for a poke — hidden at rest; the play script
+             moves it under the fingertip with the dent */
+          var sp = '<g class="pm-spark" opacity="0">';
+          var so = [[0,-26],[18,-18],[26,0],[18,18],[0,26],[-18,18],[-26,0],[-18,-18]];
+          for (var spi=0; spi<so.length; spi++) sp += '<path d="'+sparklePath(so[spi][0], so[spi][1], (3 + (spi%3)).toFixed(1))+'" fill="'+(spi%2 ? "#ffffff" : "#f7c948")+'"/>';
+          sp += '</g>';
+          out += sp;
         }
         out += '</svg>';
         return out;
@@ -1710,6 +1732,7 @@
       /* Gentle play sounds — all routed through tone(), so the existing
          sound on/off switch controls every one of them. Soft and low. */
       function pokeSound(){ tone(540, 190, 0.16, "sine", 0.09); tone(760, 980, 0.10, "sine", 0.05, 0.05); }
+      function boingSound(){ tone(180, 430, 0.12, "sine", 0.10); tone(430, 130, 0.24, "sine", 0.10, 0.10); }
       /* Gentle crunch / crackle — ONLY for recipes with a crunchy topping.
          Short filtered-noise snaps, very low volume, calm spacing: a soft
          crackle, never loud or startling. Routed through soundOn, so the
@@ -2159,7 +2182,7 @@
         if (storyTimer){ clearTimeout(storyTimer); storyTimer = null; }
         controller = ("AbortController" in window) ? new AbortController() : null;
         storyController = controller;
-        timer = controller ? setTimeout(function(){ try { controller.abort(); } catch (e) {} }, 10000) : null;
+        timer = controller ? setTimeout(function(){ try { controller.abort(); } catch (e) {} }, 20000) : null;
         storyTimer = timer;
         payload = {
           /* Only Drew's generated name (or the default) ever leaves the
@@ -2311,6 +2334,7 @@
         squish:0, vsquish:0,                   /* 0..1 — press & hold flatten */
         stretchAmt:0, vstretch:0, angle:0,     /* drag pull — gooey strands + elongation */
         dent:0, vdent:0, dentX:100, dentY:100,  /* the soft dent a poke leaves, in picture coords */
+        jiggle:0,                               /* free jiggle after release — Squish Garden wobble, fades slowly */
         down:false, dragging:false, holding:false, squishPlayed:false,
         startX:0, startY:0, lastX:0, lastY:0, downAt:0, raf:0, lastStretchSound:0, lastCrunchSound:0,
         crunchEnergy:0
@@ -2322,7 +2346,8 @@
           mound: svg.querySelector(".pm-mound"),
           whip: svg.querySelector(".pm-whip"),
           strands: svg.querySelector(".pm-strands"),
-          dentEl: svg.querySelector(".pm-dent")
+          dentEl: svg.querySelector(".pm-dent"),
+          spark: svg.querySelector(".pm-spark")
         };
       }
       /* Strand colours come from the child's own recipe, so the marbling
@@ -2343,7 +2368,11 @@
       function applyPlay(){
         /* a whisper of whole-swirl wobble rides on the wrapper; all the
            real slime motion happens inside the picture itself */
-        playSwirlEl.style.transform = "scale(" + play.sx.toFixed(3) + "," + play.sy.toFixed(3) + ")";
+        /* free jiggle after release: a slow sine wobble riding on the
+           whole swirl, like Fiona's squishy — it fades a little each
+           frame (see playLoop) instead of snapping dead still */
+        var jw = play.jiggle * 0.05 * Math.sin(Date.now()*0.011);
+        playSwirlEl.style.transform = "scale(" + (play.sx + jw).toFixed(3) + "," + (play.sy - jw*0.8).toFixed(3) + ")";
         var P = playParts();
         if (!P) return;
         var s = Math.max(-0.18, Math.min(1, play.squish));
@@ -2357,9 +2386,9 @@
                underneath never moves — the slime moves on it. --- */
         if (P.mound){
           var mt = "";
-          if (a > 0.004) mt += "translate(" + (ux*a*7).toFixed(1) + " " + (uy*a*7).toFixed(1) + ") translate(100 100) rotate(" + deg.toFixed(1) + ") scale(" + (1 + a*0.22).toFixed(3) + " " + (1 - a*0.11).toFixed(3) + ") rotate(" + (-deg).toFixed(1) + ") translate(-100 -100)";
-          mt += " translate(100 100) scale(" + (1 + s*0.20).toFixed(3) + " " + (1 + s*0.16).toFixed(3) + ") translate(-100 -100)";
-          if (d > 0.01) mt += " translate(" + play.dentX.toFixed(0) + " " + play.dentY.toFixed(0) + ") scale(" + (1 + d*0.05).toFixed(3) + " " + (1 - d*0.075).toFixed(3) + ") translate(" + (-play.dentX).toFixed(0) + " " + (-play.dentY).toFixed(0) + ")";
+          if (a > 0.004) mt += "translate(" + (ux*a*10).toFixed(1) + " " + (uy*a*10).toFixed(1) + ") translate(100 100) rotate(" + deg.toFixed(1) + ") scale(" + (1 + a*0.35).toFixed(3) + " " + (1 - a*0.16).toFixed(3) + ") rotate(" + (-deg).toFixed(1) + ") translate(-100 -100)";
+          mt += " translate(100 100) scale(" + (1 + s*0.32).toFixed(3) + " " + (1 + s*0.24).toFixed(3) + ") translate(-100 -100)";
+          if (d > 0.01) mt += " translate(" + play.dentX.toFixed(0) + " " + play.dentY.toFixed(0) + ") scale(" + (1 + d*0.09).toFixed(3) + " " + (1 - d*0.13).toFixed(3) + ") translate(" + (-play.dentX).toFixed(0) + " " + (-play.dentY).toFixed(0) + ")";
           P.mound.setAttribute("transform", mt);
         }
         /* --- the whipped topping settles into the slime: on a squish the
@@ -2482,9 +2511,17 @@
                fingertip, with a wet rim of light along its lower edge --- */
         if (P.dentEl){
           if (d > 0.01){
-            P.dentEl.setAttribute("transform", "translate(" + play.dentX.toFixed(1) + " " + play.dentY.toFixed(1) + ") scale(" + (0.55 + d*0.55).toFixed(3) + ")");
+            P.dentEl.setAttribute("transform", "translate(" + play.dentX.toFixed(1) + " " + play.dentY.toFixed(1) + ") scale(" + (0.6 + d*0.8).toFixed(3) + ")");
             P.dentEl.setAttribute("opacity", (d*0.9).toFixed(2));
           } else P.dentEl.setAttribute("opacity", "0");
+        }
+        /* a little sparkle burst where the finger landed — it rides the
+           dent and fades with it, like the Squish Garden sparkles */
+        if (P.spark){
+          if (d > 0.01){
+            P.spark.setAttribute("transform", "translate(" + play.dentX.toFixed(1) + " " + play.dentY.toFixed(1) + ") scale(" + (0.6 + d*0.9).toFixed(3) + ")");
+            P.spark.setAttribute("opacity", (d*0.9).toFixed(2));
+          } else P.spark.setAttribute("opacity", "0");
         }
         /* Crunchy pieces shift inside the folds as the slime moves: the
            whole layer lags a little behind the slime (parallax), spreads
@@ -2520,7 +2557,7 @@
           Math.abs(play.sx-1) < 0.004 && Math.abs(play.sy-1) < 0.004 && Math.abs(play.vsx) < 0.002 && Math.abs(play.vsy) < 0.002 &&
           Math.abs(play.squish) < 0.004 && Math.abs(play.vsquish) < 0.0015 &&
           Math.abs(play.stretchAmt) < 0.004 && Math.abs(play.vstretch) < 0.002 &&
-          Math.abs(play.dent) < 0.01 && Math.abs(play.vdent) < 0.004;
+          Math.abs(play.dent) < 0.01 && Math.abs(play.vdent) < 0.004 && Math.abs(play.jiggle) < 0.01;
       }
       function playLoop(){
         play.raf = 0;
@@ -2559,16 +2596,20 @@
              dent pops back fast with a wobble, the stretch folds back
              together with a soft overshoot, and the squish puffs back
              up SLOWLY — a gentle, lazy rise, like real slime settling. */
-          play.vsx = (play.vsx + (1 - play.sx) * 0.11) * 0.80; play.sx += play.vsx;
-          play.vsy = (play.vsy + (1 - play.sy) * 0.11) * 0.80; play.sy += play.vsy;
-          play.vdent = (play.vdent + (0 - play.dent) * 0.14) * (reduceMotion ? 0.78 : 0.72); play.dent += play.vdent;
-          play.vstretch = (play.vstretch + (0 - play.stretchAmt) * 0.085) * (reduceMotion ? 0.82 : 0.77); play.stretchAmt += play.vstretch;
+          play.vsx = (play.vsx + (1 - play.sx) * 0.08) * 0.86; play.sx += play.vsx;
+          play.vsy = (play.vsy + (1 - play.sy) * 0.08) * 0.86; play.sy += play.vsy;
+          play.vdent = (play.vdent + (0 - play.dent) * 0.035) * (reduceMotion ? 0.86 : 0.90); play.dent += play.vdent;
+          play.vstretch = (play.vstretch + (0 - play.stretchAmt) * 0.05) * (reduceMotion ? 0.86 : 0.85); play.stretchAmt += play.vstretch;
           play.vsquish = (play.vsquish + (0 - play.squish) * 0.030) * (reduceMotion ? 0.93 : 0.90); play.squish += play.vsquish;
+          /* the free jiggle fades a little each frame — Squish Garden
+             decay (0.972), so the slime keeps jiggling for a couple of
+             seconds after a poke, stretch or squish */
+          play.jiggle *= 0.972;
         }
         applyPlay();
         if (!playAtRest() || play.down) play.raf = requestAnimationFrame(playLoop);
         else {
-          play.sx = 1; play.sy = 1; play.squish = 0; play.stretchAmt = 0; play.dent = 0;
+          play.sx = 1; play.sy = 1; play.squish = 0; play.stretchAmt = 0; play.dent = 0; play.jiggle = 0;
           play.vsx = play.vsy = play.vsquish = play.vstretch = play.vdent = 0;
           applyPlay();
         }
@@ -2600,9 +2641,11 @@
         play.dentX = p ? Math.max(34, Math.min(166, p.x)) : 100;
         play.dentY = p ? Math.max(34, Math.min(166, p.y)) : 100;
         play.dent = reduceMotion ? 0.55 : 1; play.vdent = 0;
-        /* a small whole-swirl wobble rides along with the dent */
-        play.sx = reduceMotion ? 1.03 : 1.05; play.sy = reduceMotion ? 0.96 : 0.94;
+        /* a bigger whole-swirl wobble rides along with the dent, and the
+           free jiggle starts so the slime keeps jiggling after the poke */
+        play.sx = reduceMotion ? 1.04 : 1.09; play.sy = reduceMotion ? 0.95 : 0.90;
         play.vsx = 0; play.vsy = 0;
+        play.jiggle = Math.max(play.jiggle, reduceMotion ? 0.5 : 0.9);
         pokeSound(); triggerCrunch("poke");
         if (playNote) playNote.textContent = playWord("poke") + " Poke it, stretch it, or hold to squish it — play as long as you like.";
         startPlayLoop();
@@ -2642,9 +2685,11 @@
           play.down = false; play.dragging = false; play.holding = false;
           if (wasDrag){
             triggerCrunch("stretch");
+            play.jiggle = Math.max(play.jiggle, 1.6); boingSound();
             if (playNote) playNote.textContent = playWord("stretch") + " Poke it, stretch it, or hold to squish it — play as long as you like.";
           } else if (wasHold){
             puffSound(); triggerCrunch("poke");
+            play.jiggle = Math.max(play.jiggle, 1.5); boingSound();
             if (playNote) playNote.textContent = playWord("squish") + " Poke it, stretch it, or hold to squish it — play as long as you like.";
           } else if (quick){
             doPoke(e.clientX, e.clientY);
@@ -2658,7 +2703,8 @@
             e.preventDefault();
             playSwirlEl.style.transformOrigin = "50% 58%";
             play.dentX = 100; play.dentY = 100; play.dent = 1; play.vdent = 0;
-            play.sx = 1.05; play.sy = 0.94; play.vsx = 0; play.vsy = 0;
+            play.sx = 1.09; play.sy = 0.90; play.vsx = 0; play.vsy = 0;
+            play.jiggle = Math.max(play.jiggle, 0.9);
             pokeSound(); triggerCrunch("poke"); startPlayLoop();
           }
         });
@@ -3056,6 +3102,146 @@
           ta.select(); try { document.execCommand("copy"); } catch (e) {} done();
         }
       });
+
+      /* ================= MESH-WARP PLAY (WebGL) =================
+         The play picture is the child's finished swirl (rasterised from
+         swirlSVG without the plate) wrapped on a soft 40x40 mesh. Drag
+         pulls, hold dents, two fingers squeeze/spread, Stir swirls.
+         If WebGL or the raster fails, the old SVG play screen shows. */
+      (function(){
+        var cv = $("playGL"), card = $("playCard"), stage = playStage;
+        if (!cv) return;
+        var gl = cv.getContext("webgl", {premultipliedAlpha:true, alpha:true});
+        if (!gl){ stage.classList.add("glfail"); return; }
+        var G=40, N=G+1, M=N*N, S=.82, H2=2/G, K=.010, C=.22, D=.80;
+        var rx=new Float32Array(M), ry=new Float32Array(M), dx=new Float32Array(M), dy=new Float32Array(M),
+            vx=new Float32Array(M), vy=new Float32Array(M), dn=new Float32Array(M), ht=new Float32Array(M),
+            hb=new Float32Array(M), gw=new Float32Array(M), ox=new Float32Array(M), oy=new Float32Array(M),
+            ax=new Float32Array(M), ay=new Float32Array(M), V=new Float32Array(M*7);
+        var i, j;
+        for (j=0;j<N;j++) for (i=0;i<N;i++){ rx[j*N+i]=-1+i*H2; ry[j*N+i]=1-j*H2; }
+        function sh(t,s){ var o=gl.createShader(t); gl.shaderSource(o,s); gl.compileShader(o); return o; }
+        var pr = gl.createProgram();
+        gl.attachShader(pr, sh(gl.VERTEX_SHADER, "attribute vec2 p,u,g;attribute float h;varying vec2 vu,vg;varying float vh;void main(){vu=u;vg=g;vh=h;gl_Position=vec4(p*"+S+",0.,1.);}"));
+        gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, "precision mediump float;uniform sampler2D t;varying vec2 vu,vg;varying float vh;"+
+          "void main(){vec4 q=texture2D(t,vu);vec3 n=normalize(vec3(-clamp(vg,-.7,.7)*2.,1.));vec3 L=normalize(vec3(-.4,.6,.7));vec3 Hh=normalize(L+vec3(0.,0.,1.));"+
+          "float d=clamp(1.+.9*(dot(n,L)-L.z),.8,1.2);float sp=pow(max(dot(n,Hh),0.),60.)*.8;"+
+          "vec3 c=q.rgb*d+sp+.10*vec3(smoothstep(.0,.5,-vh));float m=q.a*(1.-clamp(-vh*1.3,0.,.3));gl_FragColor=vec4(c*m,m);}"));
+        gl.linkProgram(pr); gl.useProgram(pr);
+        var vb=gl.createBuffer(), ib=gl.createBuffer(), ix=[];
+        for (j=0;j<G;j++) for (i=0;i<G;i++){ var a=j*N+i; ix.push(a,a+1,a+N,a+1,a+N+1,a+N); }
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(ix), gl.STATIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, vb);
+        [["p",2,0],["u",2,2],["g",2,4],["h",1,6]].forEach(function(a){ var l=gl.getAttribLocation(pr,a[0]); gl.enableVertexAttribArray(l); gl.vertexAttribPointer(l,a[1],gl.FLOAT,false,28,a[2]*4); });
+        gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        var tx=gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tx);
+        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+        /* ---- swirl picture -> texture ---- */
+        var tc=document.createElement("canvas"); tc.width=tc.height=768; var c2=tc.getContext("2d");
+        var sig="", gen=0, hasTex=false, need=false, energy=0, mode="pull", auto=null;
+        function raster(){
+          if (state.base==null || !BASES[state.base]){ hasTex=false; return; }
+          var s=swirlSVG("sw", false); if (!s){ hasTex=false; return; }
+          s=s.replace("<svg viewBox",'<svg width="768" height="768" viewBox')
+             .replace(/<ellipse cx="100" cy="106"[^>]*\/>/,"")
+             .replace(/<circle cx="100" cy="100" r="(94|85)"[^>]*\/>/g,"");
+          var my=++gen, url=URL.createObjectURL(new Blob([s],{type:"image/svg+xml"})), im=new Image();
+          im.onload=function(){ URL.revokeObjectURL(url); if (my!==gen) return;
+            try { c2.clearRect(0,0,768,768); c2.drawImage(im,0,0,768,768);
+              gl.bindTexture(gl.TEXTURE_2D,tx); gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,tc);
+              hasTex=true; need=true; stage.classList.remove("glfail"); } catch(e){ stage.classList.add("glfail"); } };
+          im.onerror=function(){ URL.revokeObjectURL(url); if (my===gen) stage.classList.add("glfail"); };
+          im.src=url;
+        }
+        /* ---- input ---- */
+        var ptr=new Map(), pinch=null;
+        function wp(e){ var r=cv.getBoundingClientRect(); return [((e.clientX-r.left)/r.width*2-1)/S, -((e.clientY-r.top)/r.height*2-1)/S]; }
+        function weights(x,y,R,k){ for (var q=0;q<M;q++){ var a=rx[q]+dx[q]-x, b=ry[q]+dy[q]-y; gw[q]=Math.exp(-(a*a+b*b)/(R*R)*k); } }
+        stage.addEventListener("pointerdown", function(e){
+          var p=wp(e), x=p[0], y=p[1];
+          auto=null; ptr.set(e.pointerId,{x:x,y:y,sx:x,sy:y,t:performance.now(),moved:false});
+          if (ptr.size===1){ weights(x,y,.3,1.6); ox.set(dx); oy.set(dy); }
+          else if (ptr.size===2){ var v=Array.from(ptr.values()), mx=(v[0].x+v[1].x)/2, my=(v[0].y+v[1].y)/2;
+            pinch={d0:Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y)||.2,mx:mx,my:my}; weights(mx,my,.75,1); ox.set(dx); oy.set(dy); }
+        });
+        stage.addEventListener("pointermove", function(e){
+          var p=ptr.get(e.pointerId); if (!p) return; var c=wp(e), x=c[0], y=c[1];
+          if (Math.hypot(x-p.sx,y-p.sy)>.04) p.moved=true;
+          if (ptr.size===1 && mode==="stir" && p.moved){ for (var q=0;q<M;q++){ dx[q]+=gw[q]*(x-p.x)*.7; dy[q]+=gw[q]*(y-p.y)*.7; } weights(x,y,.3,1.6); }
+          p.x=x; p.y=y;
+        });
+        function up(e){ ptr.delete(e.pointerId); pinch=null;
+          if (ptr.size===1){ var p=Array.from(ptr.values())[0]; p.sx=p.x; p.sy=p.y; weights(p.x,p.y,.3,1.6); ox.set(dx); oy.set(dy); p.moved=true; } }
+        stage.addEventListener("pointerup", up); stage.addEventListener("pointercancel", up);
+        var mb=$("playModes");
+        if (mb) mb.addEventListener("click", function(e){ var b=e.target.closest("[data-m]"); if (!b) return; mode=b.getAttribute("data-m");
+          mb.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", x===b ? "true" : "false"); }); });
+        /* ---- soft-body step ---- */
+        function step(now){
+          var one = ptr.size===1 ? Array.from(ptr.values())[0] : null, k, l, r, u, d, jj, ii;
+          for (jj=0;jj<N;jj++) for (ii=0;ii<N;ii++){ k=jj*N+ii; l=ii?k-1:k; r=ii<G?k+1:k; u=jj?k-N:k; d=jj<G?k+N:k;
+            ax[k]=(dx[l]+dx[r]+dx[u]+dx[d])/4-dx[k]; ay[k]=(dy[l]+dy[r]+dy[u]+dy[d])/4-dy[k]; }
+          energy=0;
+          for (k=0;k<M;k++){ vx[k]=(vx[k]+(-K*dx[k]+C*ax[k]))*D; vy[k]=(vy[k]+(-K*dy[k]+C*ay[k]))*D;
+            dx[k]=Math.max(-1.1,Math.min(1.1,dx[k]+vx[k])); dy[k]=Math.max(-1.1,Math.min(1.1,dy[k]+vy[k])); dn[k]*=.93;
+            energy+=Math.abs(dx[k])+Math.abs(dy[k])+Math.abs(vx[k])+Math.abs(vy[k]); }
+          if (auto && !one && !pinch){ var el=(now-auto.t)/auto.dur; if (el>=1) auto=null; else { var ee=Math.min(1,el/.7);
+            if (auto.k==="stretch"){ for (k=0;k<M;k++){ var wa=gw[k]; if (wa<.01) continue; dx[k]+=(ox[k]+wa*auto.mx*ee-dx[k])*.3; dy[k]+=(oy[k]+wa*auto.my*ee-dy[k])*.3; vx[k]=vy[k]=0; } }
+            else { for (k=0;k<M;k++){ var wb=gw[k]; if (wb<.02) continue; var a2=rx[k]+dx[k], b2=ry[k]+dy[k], l2=Math.hypot(a2,b2)+.05, q2=wb*.012*ee; dx[k]+=a2/l2*q2; dy[k]+=b2/l2*q2; dn[k]=Math.max(dn[k],wb*.55*ee); } } } }
+          if (one){
+            if (mode==="pull" && one.moved){ var mx=one.x-one.sx, my=one.y-one.sy;
+              for (k=0;k<M;k++){ var w=gw[k]; if (w<.01) continue; dx[k]+=(ox[k]+w*mx-dx[k])*.35; dy[k]+=(oy[k]+w*my-dy[k])*.35; vx[k]=vy[k]=0; } }
+            else if (!one.moved && now-one.t>220){ var hold=Math.min(1,(now-one.t-220)/700);
+              for (k=0;k<M;k++){ var w2=gw[k]; if (w2<.02) continue; var a=rx[k]+dx[k]-one.x, b=ry[k]+dy[k]-one.y, ln=Math.hypot(a,b)+.05, q=w2*.012*hold;
+                dx[k]+=a/ln*q; dy[k]+=b/ln*q; dn[k]=Math.max(dn[k],w2*.55*hold); } }
+          } else if (pinch && ptr.size===2){ var v=Array.from(ptr.values());
+            var s=Math.max(-.6,Math.min(.3,Math.hypot(v[0].x-v[1].x,v[0].y-v[1].y)/pinch.d0-1));
+            for (k=0;k<M;k++){ var w3=gw[k]; dx[k]+=(ox[k]+(rx[k]-pinch.mx)*s*w3-dx[k])*.3; dy[k]+=(oy[k]+(ry[k]-pinch.my)*s*w3-dy[k])*.3; vx[k]=vy[k]=0; } }
+        }
+        function heights(){
+          var jj, ii, k, l, r, u, d, ex, fx, ey, fy, det;
+          for (jj=0;jj<N;jj++) for (ii=0;ii<N;ii++){ k=jj*N+ii; l=ii?k-1:k; r=ii<G?k+1:k; u=jj?k-N:k; d=jj<G?k+N:k;
+            var hx=(ii&&ii<G)?2*H2:H2, hy=(jj&&jj<G)?2*H2:H2;
+            ex=(rx[r]+dx[r]-rx[l]-dx[l])/hx; fx=(ry[r]+dy[r]-ry[l]-dy[l])/hx;
+            ey=(rx[u]+dx[u]-rx[d]-dx[d])/hy; fy=(ry[u]+dy[u]-ry[d]-dy[d])/hy;
+            det=Math.max(.3,Math.min(2.5,ex*fy-fx*ey)); ht[k]=Math.max(-.3,Math.min(.3,(det-1)*.35-dn[k])); }
+          for (jj=0;jj<N;jj++) for (ii=0;ii<N;ii++){ k=jj*N+ii; l=ii?k-1:k; r=ii<G?k+1:k; u=jj?k-N:k; d=jj<G?k+N:k; hb[k]=(ht[k]*4+ht[l]+ht[r]+ht[u]+ht[d])/8; }
+          ht.set(hb);
+        }
+        function draw(w){
+          heights();
+          var jj, ii, k, l, r, u, d, o;
+          for (jj=0;jj<N;jj++) for (ii=0;ii<N;ii++){ k=jj*N+ii; l=ii?k-1:k; r=ii<G?k+1:k; u=jj?k-N:k; d=jj<G?k+N:k; o=k*7;
+            V[o]=rx[k]+dx[k]; V[o+1]=ry[k]+dy[k]; V[o+2]=(rx[k]+1)/2; V[o+3]=(1-ry[k])/2;
+            V[o+4]=(ht[r]-ht[l])/(((r-l)||1)*H2); V[o+5]=(ht[u]-ht[d])/(((d-u)/N||1)*H2); V[o+6]=ht[k]; }
+          if (cv.width!==w){ cv.width=cv.height=w; }
+          gl.viewport(0,0,cv.width,cv.height); gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT);
+          gl.bufferData(gl.ARRAY_BUFFER,V,gl.DYNAMIC_DRAW); gl.drawElements(gl.TRIANGLES,ix.length,gl.UNSIGNED_SHORT,0);
+        }
+        function loop(t){
+          requestAnimationFrame(loop);
+          if (card.hidden) return;
+          var cur=JSON.stringify(state); if (cur!==sig){ sig=cur; raster(); }
+          if (!hasTex) return;
+          var w=(cv.clientWidth*(window.devicePixelRatio||1))|0; if (!w) return;
+          if (!(ptr.size>0 || energy>.02 || need || auto)) return;
+          need=false; step(t); draw(w);
+        }
+        var hintsEl=document.querySelector(".play-hints");
+        if (hintsEl) hintsEl.addEventListener("click", function(e){
+          var b=e.target.closest("[data-act]"); if (!b || !hasTex || ptr.size) return;
+          var kind=b.getAttribute("data-act"), now=performance.now(), k;
+          if (kind==="poke"){ weights(0,0,.35,1.6);
+            for (k=0;k<M;k++){ var w=gw[k]; if (w<.02) continue; var a=rx[k]+dx[k], bb=ry[k]+dy[k], l=Math.hypot(a,bb)+.05;
+              dx[k]+=a/l*w*.07; dy[k]+=bb/l*w*.07; dn[k]=Math.max(dn[k],w*.6); }
+            try { pokeSound(); } catch(x){} }
+          else if (kind==="stretch"){ var sd=Math.random()<.5?-1:1; weights(sd*.3,0,.35,1.6); ox.set(dx); oy.set(dy);
+            auto={k:"stretch",t:now,dur:900,mx:sd*.9,my:(Math.random()-.5)*.5}; try { stretchSound(); } catch(x){} }
+          else { weights(0,0,.5,1.2); auto={k:"squish",t:now,dur:1100}; try { holdSquishSound(); } catch(x){} }
+          need=true;
+        });
+        requestAnimationFrame(loop);
+      })();
 
       /* ================= go ================= */
       buildControls();
