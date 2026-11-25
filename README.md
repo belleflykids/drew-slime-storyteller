@@ -56,7 +56,11 @@ involved.
 
 **What's next.** Because of the result we had in this hackathon, we are
 considering using Ember on our website — adding the Storyteller to the
-live Slime Bar at belleflykids.com once the hackathon is done.
+live Slime Bar at belleflykids.com once the hackathon is done. In the
+future, Ember will connect our Bellefly Kids Garden World, so all our
+characters can be more interactive with children — especially when it
+comes to storytelling. Luna, Sammy, Toby, and the rest of the garden
+friends will each tell their own stories, in their own voices.
 
 ## Safety fallback: a child never sees a bad answer
 
