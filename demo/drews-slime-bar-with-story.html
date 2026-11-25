@@ -2020,6 +2020,7 @@
          sees an error. "Tell it again" replays the same saved
          story with no new call. */
       var storyCached = "", storyThinking = false, readingAloud = false;
+      var storyController = null, storyTimer = null, storyGen = 0;
       function storySafeName(){
         var v = creationName(), i, toks;
         if (/[0-9]/.test(v)) return "My Slime Creation";
@@ -2029,6 +2030,13 @@
           if (NAMER_BANNED_WORDS.indexOf(toks[i]) !== -1) return "My Slime Creation";
         }
         return v;
+      }
+      /* The name the storyteller may send: only a name Drew generated on
+         this page (lastDrewName), or the default. A name typed in the box
+         stays on the picture and in the caption — it is never sent
+         anywhere, so nothing a child types can reach the model. */
+      function storyNameForApi(){
+        return lastDrewName || "My Slime Creation";
       }
       function storyColours(){
         if (state.base == null) return "soft rainbow";
@@ -2098,6 +2106,11 @@
         $("storyBtn").hidden = true;
       }
       function clearStory(){
+        /* A reset or a re-mix wins over any story still on its way: abort
+           it, so its answer can never land on a different slime. */
+        storyGen++;
+        if (storyController){ try { storyController.abort(); } catch (e) {} storyController = null; }
+        if (storyTimer){ clearTimeout(storyTimer); storyTimer = null; }
         stopReading();
         storyCached = ""; storyThinking = false;
         var row = $("storyRow"), bubble = $("storyBubble");
@@ -2132,16 +2145,26 @@
         window.speechSynthesis.speak(u);
       }
       function askForStory(){
-        var controller, timer, payload;
+        var controller, timer, payload, myGen;
         if (storyThinking) return;
         if (storyCached){ showStory(storyCached); return; }
         if (!STORYTELLER_URL){ showStory(cannedStory()); return; }
         storyThinking = true;
         showStoryThinking();
+        /* Abort any earlier story fetch still in flight, and remember this
+           request's number — a late answer from an older request is ignored. */
+        storyGen++;
+        myGen = storyGen;
+        if (storyController){ try { storyController.abort(); } catch (e) {} }
+        if (storyTimer){ clearTimeout(storyTimer); storyTimer = null; }
         controller = ("AbortController" in window) ? new AbortController() : null;
+        storyController = controller;
         timer = controller ? setTimeout(function(){ try { controller.abort(); } catch (e) {} }, 10000) : null;
+        storyTimer = timer;
         payload = {
-          name: creationName(),
+          /* Only Drew's generated name (or the default) ever leaves the
+             page. A name typed in the box stays on the picture only. */
+          name: storyNameForApi(),
           base: (BASES[state.base] || { name: "" }).name,
           syrups: state.syrups.slice(0, 2).map(function(i){ return SYRUPS[i].name; }),
           toppings: state.toppings.slice(0, 4).map(topName)
@@ -2155,11 +2178,13 @@
           if (!resp.ok) throw new Error("story " + resp.status);
           return resp.json();
         }).then(function(data){
+          if (myGen !== storyGen) return; /* superseded by a reset or a newer request — show nothing */
           if (timer) clearTimeout(timer);
           storyThinking = false;
           var clean = data ? storyClean(data.story || data.text || "") : null;
           showStory(clean || cannedStory());
         }).catch(function(){
+          if (myGen !== storyGen) return; /* superseded by a reset or a newer request — show nothing */
           if (timer) clearTimeout(timer);
           storyThinking = false;
           showStory(cannedStory());
