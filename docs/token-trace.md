@@ -1,95 +1,16 @@
-# Token trace — Drew's Slime Storyteller
+# Drew's Slime Storyteller — token trace
 
-**No live Muse Ember calls have been made yet — the $10 credits are claimed but not yet confirmed on the Billing page.**
+Live Ember usage for the hackathon entry. Costs at $0.10 per 1M input tokens and $0.50 per 1M output tokens. Model: muse-ember-1.0.
 
-This file is the hackathon record for Drew's Slime Storyteller: the prompt
-sent to Muse Ember, and every live call's tokens and cost. It proves the
-feature runs entirely on Muse Ember (`muse-ember-1.0`, via the Meta Model
-API) and stays inside the $10 credit cap.
+Budget cap for live testing: $9.00. The harness aborts before total spend would pass it.
 
-## The prompt
+| Calls | Input tokens | Output tokens | Total spend (USD) | Budget left (USD) |
+|---:|---:|---:|---:|---:|
+| 3 | 812 | 531 | $0.000347 | $8.999653 |
 
-The exact system prompt sent to Muse Ember, built from the recipe by
-`buildSystemPrompt` in `worker/drew-slime-storyteller.js` (also written
-out in full in [docs/prompt.md](prompt.md)). Placeholders: `{name}`,
-`{base}`, `{syrups}`, `{toppings}`. When a recipe has no topping, the
-topping rule is left out.
+Last updated: 2026-11-25T09:58:40Z (UTC).
+Per-call detail lives in token-trace.jsonl (one JSON line per call).
 
-```
-You are Drew, a cute fluffy little blue spider with soft fuzzy bright-blue fur, two big sparkly blue eyes with long lashes, a big happy smile, and a sparkly blue bow tie with a purple heart-shaped gem in the centre. You host a slime bar for little children in the Bellefly Kids Garden.
-A child just finished making a pretend slime. Tell a tiny story about it, just for them.
-Slime — name: {name}; base: {base}; colours: {syrups}; toppings: {toppings}.
-Rules, all mandatory:
-- Tell a story of exactly TWO sentences. No more, no fewer.
-- Mention the slime's name, its colours, and its topping.
-- Warm, gentle, playful words a preschool child would love. Simple words, short sentences.
-- Kind and wholesome only. No upsetting, unkind, or hurtful words. No fights, no strangers, no secrets.
-- Never use any word from the banned-words list.
-- No seasonal celebration themes. No religious symbols.
-- Never tell the child how to make real slime. This is pretend play only.
-- Return ONLY JSON, no other text: {"story": "..."}
-```
+Notes: the Ocean Blue recipe failed twice before passing — once on a network fetch failure from the test machine ($0, no model call) and once with a 502 (the model's story failed the server-side check twice inside the Worker; those model tokens are in the Worker logs, not in the 502 response, estimated under $0.0002). True total spend including the 502 attempt is still under $0.001. The Worker also verified two assumptions on the first live calls: Ember accepts `reasoning_effort: "minimal"`, and the usage fields are `prompt_tokens` / `completion_tokens` as assumed.
 
-The user message is `Tell the story about my slime.` (on retry, the
-broken rule is named). The prompt does not spell the banned words out —
-enforcement is server-side: every answer is checked word by word
-against the banned-word lists before anything is returned, and the game
-checks the story once more before showing it.
-
-## Pricing
-
-| | Price |
-| --- | --- |
-| Input | $0.10 per 1M tokens |
-| Output | $0.50 per 1M tokens |
-
-Per-story cost: about **$0.00006** (roughly 300 input tokens + roughly
-60 output tokens). $10 covers roughly 160,000 stories.
-
-## How the trace is updated
-
-After every live Ember call, the test harness (`worker/test-storyteller.mjs`) appends one JSON
-line to `token-trace.jsonl` and updates the table below, including the
-running total. Dry-run calls are never logged here — only real calls
-that cost real credit. If the running total ever approaches $10, the
-feature switches to canned stories only until more credit is added.
-
-## Per-line JSON schema (`token-trace.jsonl`)
-
-One JSON object per line, one line per live call:
-
-```json
-{
-  "timestamp": "2026-11-24T22:00:00Z",
-  "recipe": {
-    "colours": ["Really Red", "Drew Blue"],
-    "topping": "Gummy Worms",
-    "slime_name": "Snowy Pink Bubble Pop"
-  },
-  "model": "muse-ember-1.0",
-  "input_tokens": 150,
-  "output_tokens": 60,
-  "cost_usd": 0.000045,
-  "running_total_usd": 0.000045
-}
-```
-
-Field notes:
-
-- `timestamp` — UTC ISO 8601 time of the call.
-- `recipe` — the exact button picks sent: slime colours, topping, and
-  the slime's name. No child's name, no personal detail, nothing typed.
-- `model` — always `muse-ember-1.0`.
-- `input_tokens` / `output_tokens` — token counts reported by the API
-  for that call.
-- `cost_usd` — `input_tokens × 0.10 / 1,000,000 + output_tokens × 0.50 / 1,000,000`,
-  rounded to 6 decimal places.
-- `running_total_usd` — cumulative spend including this call.
-
-## Calls
-
-| Timestamp (UTC) | Recipe (colours + topping + name) | Model | In | Out | Cost (USD) | Running total (USD) |
-| --- | --- | --- | --- | --- | --- | --- |
-| _none yet_ | — | — | — | — | — | **$0.000000** |
-
-**Running total: $0.00 — no live calls yet.**
+Live game use: on 24 Nov ~23:57 HST Chalette tap-tested the game on her phone (Snowy White base, Drew Blue syrup, Jelly Cubes topping, name "Swirly White Swirl") and the live Ember story showed on screen: "Your Swirly White Swirl is soft and snowy white with pretty Drew Blue swirls all around. The Jelly Cubes on top sparkle like little candies for a fun pretend play hug." Exact tokens for that call are in the Worker logs; estimated ~$0.0001 from the three measured calls, so true total spend is still under $0.001.
