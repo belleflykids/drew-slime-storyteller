@@ -211,6 +211,7 @@ function buildSystemPrompt(recipe) {
     "Rules, all mandatory:",
     "- Tell a story of exactly TWO sentences. No more, no fewer.",
     "- Mention the slime's name, its colours" + (recipe.toppings.length ? ", and its topping" : "") + ".",
+    "- Say how the slime feels to play with — soft, squishy, stretchy or jiggly.",
     "- Warm, gentle, playful words a preschool child would love. Simple words, short sentences.",
     "- Kind and wholesome only. No upsetting, unkind, or hurtful words. No fights, no strangers, no secrets.",
     "- Never use any word from the banned-words list.",

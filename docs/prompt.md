@@ -20,6 +20,7 @@ Slime — name: {name}; base: {base}; colours: {syrups}; toppings: {toppings}.
 Rules, all mandatory:
 - Tell a story of exactly TWO sentences. No more, no fewer.
 - Mention the slime's name, its colours, and its topping.
+- Say how the slime feels to play with — soft, squishy, stretchy or jiggly.
 - Warm, gentle, playful words a preschool child would love. Simple words, short sentences.
 - Kind and wholesome only. No upsetting, unkind, or hurtful words. No fights, no strangers, no secrets.
 - Never use any word from the banned-words list.
@@ -90,7 +91,7 @@ The story must pass ALL of these, or it is rejected:
 7. The answer must be JSON only: `{"story": "..."}`. Anything else —
    bad JSON, a missing `story` field — is rejected.
 
-Colour and topping mentions are required by the prompt, not by the
+Colour, topping and feel mentions are required by the prompt, not by the
 server check; the server check enforces the name, length, shape, and
 word lists above.
 
