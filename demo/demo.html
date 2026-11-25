@@ -222,6 +222,7 @@
 
   /* ---- Storyteller: same flow as the game copy ---- */
   var storyCached = "", storyThinking = false, readingAloud = false;
+  var storyController = null, storyTimer = null, storyGen = 0, lastPickedName = "";
 
   function namerTokens(s){
     return s.toLowerCase().replace(/['’‘]/g, "").replace(/[^a-z]+/g, " ").split(/\s+/).filter(Boolean);
@@ -235,6 +236,15 @@
       if (NAMER_BANNED_WORDS.indexOf(toks[i]) !== -1) return "My Slime Creation";
     }
     return v;
+  }
+  /* The name the storyteller may send: only the name Drew just picked
+     (lastPickedName), and only while the box still holds exactly that
+     name — otherwise the default. A name typed in the box stays on the
+     picture only; it is never sent anywhere, so nothing a child types
+     can reach the model. */
+  function storyNameForApi(){
+    var v = $("nameInput").value.trim();
+    return (lastPickedName && v === lastPickedName) ? lastPickedName : "My Slime Creation";
   }
   function storyColours(){
     if (state.base === null) return "soft rainbow";
@@ -304,6 +314,11 @@
     $("storyBtn").hidden = true;
   }
   function clearStory(){
+    /* A reset or a re-mix wins over any story still on its way: abort
+       it, so its answer can never land on a different slime. */
+    storyGen++;
+    if (storyController){ try { storyController.abort(); } catch (e) {} storyController = null; }
+    if (storyTimer){ clearTimeout(storyTimer); storyTimer = null; }
     stopReading();
     storyCached = ""; storyThinking = false;
     $("storyRow").hidden = true;
@@ -337,16 +352,25 @@
     window.speechSynthesis.speak(u);
   }
   function askForStory(){
-    var controller, timer, payload;
+    var controller, timer, payload, myGen;
     if (storyThinking) return;
     if (storyCached){ showStory(storyCached); return; }
     if (!STORYTELLER_URL){ showStory(cannedStory()); return; }
     storyThinking = true;
     showStoryThinking();
+    /* Abort any earlier story fetch still in flight, and remember this
+       request's number — a late answer from an older request is ignored. */
+    storyGen++;
+    myGen = storyGen;
+    if (storyController){ try { storyController.abort(); } catch (e) {} }
+    if (storyTimer){ clearTimeout(storyTimer); storyTimer = null; }
     controller = ("AbortController" in window) ? new AbortController() : null;
+    storyController = controller;
     timer = controller ? setTimeout(function(){ try { controller.abort(); } catch (e) {} }, 10000) : null;
+    storyTimer = timer;
     payload = {
-      name: creationName(),
+      /* Only Drew's picked name (or the default) ever leaves the page. */
+      name: storyNameForApi(),
       base: (BASES[state.base] || { name: "" }).name,
       syrups: state.syrups.slice(0, 2).map(function(i){ return SYRUPS[i].name; }),
       toppings: state.toppings.slice(0, 4).map(function(i){ return TOPPINGS[i]; })
@@ -360,11 +384,13 @@
       if (!resp.ok) throw new Error("story " + resp.status);
       return resp.json();
     }).then(function(data){
+      if (myGen !== storyGen) return; /* superseded by a reset or a newer request — show nothing */
       if (timer) clearTimeout(timer);
       storyThinking = false;
       var clean = data ? storyClean(data.story || data.text || "") : null;
       showStory(clean || cannedStory());
     }).catch(function(){
+      if (myGen !== storyGen) return; /* superseded by a reset or a newer request — show nothing */
       if (timer) clearTimeout(timer);
       storyThinking = false;
       showStory(cannedStory());
@@ -388,7 +414,7 @@
 
   function resetAll(){
     state = { base: null, syrups: [], toppings: [] };
-    $("nameInput").value = pickName();
+    $("nameInput").value = lastPickedName = pickName();
     $("playArea").hidden = true;
     $("storyBox").hidden = true;
     clearStory();
@@ -419,7 +445,7 @@
     else if (state.toppings.length < 4) state.toppings.push(i);
     syncPressed();
   });
-  $("newNameBtn").addEventListener("click", function(){ $("nameInput").value = pickName(); });
+  $("newNameBtn").addEventListener("click", function(){ $("nameInput").value = lastPickedName = pickName(); });
   $("mixBtn").addEventListener("click", doMix);
   $("storyBtn").addEventListener("click", askForStory);
   $("storyAgainBtn").addEventListener("click", function(){ if (storyCached) showStory(storyCached); });
@@ -427,7 +453,7 @@
   $("resetBtn").addEventListener("click", resetAll);
 
   buildOpts();
-  $("nameInput").value = pickName();
+  $("nameInput").value = lastPickedName = pickName();
   syncPressed();
 })();
 </script>
