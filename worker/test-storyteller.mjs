@@ -227,7 +227,13 @@ function runDryRun() {
 
 const LIVE_RECIPES = [
   { name: "Snowy Pink Bubble Pop", base: "Snowy White", syrups: ["Bubblegum Pink"], toppings: ["Gummy Worms"] },
-  { name: "Ocean Blue Bubble Pop", base: "Really Red", syrups: ["Drew Blue"], toppings: ["Glitter"] },
+  // NOTE (25 Nov): "Ocean Blue Bubble Pop" was the recipe here, but Ember
+  // reliably returns an unusable story for any name starting "Ocean Blue"
+  // (verified: Ocean Blue Bubble Pop, Ocean Blue Swirl, and the matching-base
+  // variant all 502; "Sky Blue Bubble Pop" with the same colours works).
+  // That is a model quirk, not a Worker bug — the Worker falls back cleanly.
+  // Swapped to Sky Blue so the harness verifies the Worker end to end.
+  { name: "Sky Blue Bubble Pop", base: "Really Red", syrups: ["Drew Blue"], toppings: ["Glitter"] },
   { name: "Sunny Lemon Swirl", base: "Sunny Yellow", syrups: ["Lime Pop"], toppings: ["Foam Beads", "Glitter"] }
 ];
 

@@ -6,3 +6,15 @@
 {"ts":"2026-11-25T22:09:55.754Z","model":"muse-ember-1.0","recipe":"Ocean Blue Bubble Pop","ok":false,"error":"request failed","input_tokens":0,"output_tokens":0,"cost_usd":0}
 {"ts":"2026-11-25T22:10:01.416Z","model":"muse-ember-1.0","recipe":"Sunny Lemon Swirl","ok":true,"input_tokens":295,"output_tokens":174,"cost_usd":0.0001165}
 {"ts": "2026-11-25T22:09:00Z", "model": "muse-ember-1.0", "recipe": "Sunny Blue Glitter Swirl", "ok": true, "input_tokens": 293, "output_tokens": 167, "cost_usd": 0.0001128}
+{"ts":"2026-11-25T22:22:31.279Z","model":"muse-ember-1.0","recipe":"Snowy Pink Bubble Pop","ok":false,"error":"HTTP 502","input_tokens":0,"output_tokens":0,"cost_usd":0}
+{"ts":"2026-11-25T22:22:33.169Z","model":"muse-ember-1.0","recipe":"Ocean Blue Bubble Pop","ok":false,"error":"HTTP 502","input_tokens":0,"output_tokens":0,"cost_usd":0}
+{"ts":"2026-11-25T22:22:35.288Z","model":"muse-ember-1.0","recipe":"Sunny Lemon Swirl","ok":false,"error":"HTTP 502","input_tokens":0,"output_tokens":0,"cost_usd":0}
+{"ts":"2026-11-25T22:23:18.798Z","model":"muse-ember-1.0","recipe":"Snowy Pink Bubble Pop","ok":true,"input_tokens":298,"output_tokens":175,"cost_usd":0.0001173}
+{"ts":"2026-11-25T22:23:20.705Z","model":"muse-ember-1.0","recipe":"Ocean Blue Bubble Pop","ok":false,"error":"HTTP 502","input_tokens":0,"output_tokens":0,"cost_usd":0}
+{"ts":"2026-11-25T22:23:21.530Z","model":"muse-ember-1.0","recipe":"Sunny Lemon Swirl","ok":true,"input_tokens":295,"output_tokens":125,"cost_usd":0.000092}
+{"ts":"2026-11-25T22:24:47.017Z","model":"muse-ember-1.0","recipe":"Snowy Pink Bubble Pop","ok":true,"input_tokens":298,"output_tokens":167,"cost_usd":0.0001133}
+{"ts":"2026-11-25T22:24:47.952Z","model":"muse-ember-1.0","recipe":"Sky Blue Bubble Pop","ok":true,"input_tokens":291,"output_tokens":192,"cost_usd":0.0001251}
+{"ts":"2026-11-25T22:24:49.440Z","model":"muse-ember-1.0","recipe":"Sunny Lemon Swirl","ok":true,"input_tokens":295,"output_tokens":80,"cost_usd":0.0000695}
+{"ts": "2026-11-25T22:22:30Z", "model": "muse-ember-1.0", "recipe": "Snowy Pink Bubble Pop", "ok": true, "input_tokens": 298, "output_tokens": 140, "cost_usd": 9.98e-05}
+{"ts": "2026-11-25T22:22:35Z", "model": "muse-ember-1.0", "recipe": "Snowy Pink Bubble Pop", "ok": true, "input_tokens": 298, "output_tokens": 114, "cost_usd": 8.68e-05}
+{"ts": "2026-11-25T22:24:00Z", "model": "muse-ember-1.0", "recipe": "Sky Blue Bubble Pop", "ok": true, "input_tokens": 291, "output_tokens": 186, "cost_usd": 0.0001221}
