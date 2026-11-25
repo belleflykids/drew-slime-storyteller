@@ -147,23 +147,9 @@ go straight to 502.
   `docs/token-trace.jsonl` and keeps running totals in
   `docs/token-trace.md`.
 
-## Assumptions to verify on the first live test
+## Verified on the first live test (24 Nov 2026)
 
-1. **`reasoning_effort: "minimal"`** — copied from the namer Worker,
-   which uses it with muse-spark-1.3. If Ember rejects the field, drop
-   it from the request body in `callModel` and retry. That is the
-   expected fix; nothing else in the request needs to change.
-2. **Usage fields** — the Worker reads `data.usage.prompt_tokens` and
-   `data.usage.completion_tokens`. If Ember names them differently,
-   usage will come back as 0 and the trace will under-report cost;
-   check the first live response and adjust the field names.
-3. **Prompt wording** — the first live stories should be checked for
-   exactly two sentences, the slime name, and the 25–60 word range
-   before the game is wired to the live endpoint. The dry-run harness
-   already proves the validator catches every failure mode with
-   canned answers; the live test proves the model usually passes on
-   the first try.
-4. **Credit source** — live testing must use only the $10 hackathon
-   credit once it is confirmed on the Billing page. The older credit
-   balance must never be used for this project. The harness enforces
-   this with the `EMBER_CREDITS_CONFIRMED=1` gate and the $9.00 cap.
+1. **`reasoning_effort: "minimal"`** — VERIFIED: Ember accepts the field; all three live stories returned with it set.
+2. **Usage fields** — VERIFIED: the Worker reads `data.usage.prompt_tokens` and `data.usage.completion_tokens`, and the live responses carried them as assumed.
+3. **Prompt wording** — VERIFIED: the three live stories each came back as exactly two sentences, named the slime, and fell in the 25–60 word range; the server validator passed them (Ocean Blue needed one retry after a network failure and one 502, then passed).
+4. **Credit source** — live testing uses only the $10 hackathon credit, confirmed on the Billing page 24 Nov (free credits in use $159.90). The older credit balance is never used for this project. The harness enforces this with the `EMBER_CREDITS_CONFIRMED=1` gate and the $9.00 cap.

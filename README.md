@@ -32,6 +32,8 @@ story about that exact slime — its colours, its topping, and its name.
    for a two-sentence story about that slime, in Drew's warm, gentle voice.
 5. Drew's story appears on screen, ready to read aloud together. A **"Read it aloud"** button speaks the story in the phone's own built-in voice — nothing is recorded or sent anywhere; the words never leave the device. Tap again to stop.
 
+**Ember only.** The only AI in this project is Muse Ember: the storyteller Worker calls `muse-ember-1.0` and nothing else. Slime names are picked on the page itself, by the built-in name-maker. The live website's separate name-maker service (which runs on another model) is not part of this submission and is never called from these files. "Read it aloud" is the phone's own built-in voice, not a model. No other model is involved, and no other AI API is called.
+
 The story is generated fresh for every slime, so no two slimes get quite
 the same story. The whole feature runs on Muse Ember — no other model is
 involved.

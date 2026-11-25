@@ -76,9 +76,8 @@ const PRICE_INPUT_PER_M = 0.10; // USD per 1M input tokens
 const PRICE_OUTPUT_PER_M = 0.50; // USD per 1M output tokens
 const MAX_TOKENS = 200;
 const TEMPERATURE = 0.8;
-// ASSUMPTION TO VERIFY ON FIRST LIVE TEST: reasoning_effort "minimal" is
-// copied from the namer Worker (muse-spark-1.3). If Ember rejects the
-// field, drop it from the request body and retry — that is the fix.
+// VERIFIED ON FIRST LIVE TEST (24 Nov 2026): Ember accepts
+// reasoning_effort "minimal" — all three live stories returned with it set.
 const REASONING_EFFORT = "minimal";
 
 // Small list: checked as loose substrings on INCOMING recipe values.
