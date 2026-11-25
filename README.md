@@ -1,13 +1,26 @@
 # Drew's Slime Storyteller
 
+![Powered by Muse Ember](https://img.shields.io/badge/Powered%20by-Muse%20Ember-orange)
+
+**Every story is written live by Muse Ember.**
+
 A tiny storyteller for little hands. Drew — the cheerful little blue spider
 from Bellefly Kids — tells a two-sentence story about the pretend slime a
-child just made in Drew's Slime Bar Adventure.
+child just made in Drew's Slime Bar Adventure. The storyteller is Ember:
+she writes each story fresh, just for that slime.
 
 **Play the game:** https://belleflykids.com/drews-slime-bar — the live Slime Bar. The Storyteller itself runs in the demo pages in this repo: open `demo/demo.html` (lightweight demo) or `demo/drews-slime-bar-with-story.html` (the full game with the story button) in a browser — no server needed. The story button is not on the live site yet.
 
 This is Chalette Hodge's entry for the Muse Ember Hackathon (virtual, solo).
 Project due December 2, 2026, 9:00 PM ET. Winners announced December 7, 2026.
+
+## Meet Ember — the star of this project
+
+Muse Ember is the AI behind every story. When a child finishes a slime and
+taps "Hear Drew's story", Ember writes a fresh two-sentence story about that
+exact slime — its colours, its topping, and its name — in Drew's warm, gentle
+voice. No story is ever reused: every slime gets its own story, written live
+by Ember.
 
 ## What it is
 
