@@ -92,7 +92,7 @@ const ANSWER_BANNED_PHRASES = ["new year", "new years", "st patrick", "saint pat
 const LIMIT_PER_MINUTE = 10;
 const LIMIT_PER_DAY_IP = 100;
 const LIMIT_PER_DAY_TOTAL = 500;
-const UPSTREAM_TIMEOUT_MS = 8000; // game gives up after 10s — answer first.
+const UPSTREAM_TIMEOUT_MS = 15000; // game gives up after 20s — answer first.
 
 function log(event, details) {
   try {
@@ -233,7 +233,7 @@ function todayKey() {
   return new Date().toISOString().slice(0, 10); // UTC date, e.g. 2026-11-24
 }
 
-// One model call, with an 8-second timeout. Returns
+// One model call, with a 15-second timeout. Returns
 // { ok: true, story, usage } or { ok: false, reason, raw }.
 // Every attempt is logged as one JSON line with model, tokens and cost.
 async function callModel(apiKey, recipe, retryNote) {
@@ -291,7 +291,7 @@ async function callModel(apiKey, recipe, retryNote) {
     }
     return { ok: false, reason: parsed.reason, raw: parsed.raw };
   } catch (e) {
-    const reason = (e && e.name === "AbortError") ? "model timed out after 8s" : "model request failed";
+    const reason = (e && e.name === "AbortError") ? "model timed out after 15s" : "model request failed";
     log("model_call", { model: MODEL, input_tokens: 0, output_tokens: 0, cost_usd: 0, ok: false, reason });
     return { ok: false, reason };
   } finally {
