@@ -97,6 +97,7 @@
         <div class="story-bubble" id="storyBubble" role="status" aria-live="polite"></div>
       </div>
       <button class="btn btn-ghost again-btn" id="storyAgainBtn" type="button" hidden>Tell it again</button>
+      <button class="btn btn-ghost again-btn" id="storyReadBtn" type="button" hidden>Read it aloud</button>
     </div>
     <div style="margin-top:14px;">
       <button class="btn btn-ghost btn-wide" id="resetBtn" type="button">Start over</button>
@@ -220,7 +221,7 @@
   }
 
   /* ---- Storyteller: same flow as the game copy ---- */
-  var storyCached = "", storyThinking = false;
+  var storyCached = "", storyThinking = false, readingAloud = false;
 
   function namerTokens(s){
     return s.toLowerCase().replace(/['’‘]/g, "").replace(/[^a-z]+/g, " ").split(/\s+/).filter(Boolean);
@@ -287,24 +288,53 @@
     return story;
   }
   function showStory(text){
+    stopReading();
     storyCached = text;
     $("storyBubble").textContent = text;
     $("storyRow").hidden = false;
     $("storyAgainBtn").hidden = false;
+    $("storyReadBtn").hidden = !("speechSynthesis" in window);
     $("storyBtn").hidden = true;
   }
   function showStoryThinking(){
     $("storyBubble").innerHTML = '<span class="story-dots" aria-label="Drew is thinking"><span>.</span><span>.</span><span>.</span></span>';
     $("storyRow").hidden = false;
     $("storyAgainBtn").hidden = true;
+    $("storyReadBtn").hidden = true;
     $("storyBtn").hidden = true;
   }
   function clearStory(){
+    stopReading();
     storyCached = ""; storyThinking = false;
     $("storyRow").hidden = true;
     $("storyBubble").innerHTML = "";
     $("storyAgainBtn").hidden = true;
+    $("storyReadBtn").hidden = true;
     $("storyBtn").hidden = false;
+  }
+  /* Read it aloud — the phone's own built-in voice reads the story on
+     this page. Nothing is recorded or sent anywhere: the words never
+     leave the device. Tap again to stop. */
+  function stopReading(){
+    readingAloud = false;
+    var b = $("storyReadBtn");
+    if (b) b.textContent = "Read it aloud";
+    try { if ("speechSynthesis" in window) window.speechSynthesis.cancel(); } catch (e) {}
+  }
+  function readStoryAloud(){
+    if (!("speechSynthesis" in window)) return;
+    if (readingAloud){ stopReading(); return; }
+    var text = storyCached || $("storyBubble").textContent || "";
+    if (!text) return;
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    u.rate = 0.9;
+    u.pitch = 1.05;
+    u.onend = function(){ readingAloud = false; var b = $("storyReadBtn"); if (b) b.textContent = "Read it aloud"; };
+    u.onerror = function(){ readingAloud = false; var b = $("storyReadBtn"); if (b) b.textContent = "Read it aloud"; };
+    readingAloud = true;
+    $("storyReadBtn").textContent = "Stop reading";
+    window.speechSynthesis.speak(u);
   }
   function askForStory(){
     var controller, timer, payload;
@@ -393,6 +423,7 @@
   $("mixBtn").addEventListener("click", doMix);
   $("storyBtn").addEventListener("click", askForStory);
   $("storyAgainBtn").addEventListener("click", function(){ if (storyCached) showStory(storyCached); });
+  $("storyReadBtn").addEventListener("click", readStoryAloud);
   $("resetBtn").addEventListener("click", resetAll);
 
   buildOpts();

@@ -30,7 +30,7 @@ story about that exact slime — its colours, its topping, and its name.
    no child's name, no photo, no personal detail, no account.
 4. The Worker asks **Muse Ember** (`muse-ember-1.0`, via the Meta Model API)
    for a two-sentence story about that slime, in Drew's warm, gentle voice.
-5. Drew's story appears on screen, ready to read aloud together.
+5. Drew's story appears on screen, ready to read aloud together. A **"Read it aloud"** button speaks the story in the phone's own built-in voice — nothing is recorded or sent anywhere; the words never leave the device. Tap again to stop.
 
 The story is generated fresh for every slime, so no two slimes get quite
 the same story. The whole feature runs on Muse Ember — no other model is
