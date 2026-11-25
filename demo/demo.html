@@ -257,13 +257,13 @@
     var marks, firstEnd = -1, i, s1, s2, tokens, padded;
     if (typeof story !== "string") return null;
     story = story.trim().replace(/\s+/g, " ");
-    if (!story || story.length > 220) return null;
+    if (!story || story.length > 400) return null;
     if (/[0-9]/.test(story)) return null;
     if (/(https?|www\.|\.com|\.net|\.org|@)/i.test(story)) return null;
     marks = story.match(/[.!?]/g) || [];
     if (marks.length !== 2) return null;
     if (story.indexOf("?") !== -1) return null;
-    if (!/^[A-Za-z][A-Za-z ,'\-!\u2019]*[.!]$/.test(story)) return null;
+    if (!/^[A-Za-z][A-Za-z ,'\-!\u2019.]*[.!]$/.test(story)) return null;
     for (i = 0; i < story.length; i++){
       if (story[i] === "." || story[i] === "!"){ firstEnd = i; break; }
     }
