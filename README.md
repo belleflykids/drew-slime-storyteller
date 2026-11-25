@@ -4,7 +4,7 @@ A tiny storyteller for little hands. Drew — the cheerful little blue spider
 from Bellefly Kids — tells a two-sentence story about the pretend slime a
 child just made in Drew's Slime Bar Adventure.
 
-**Play the game:** https://belleflykids.com/drews-slime-bar
+**Play the game:** https://belleflykids.com/drews-slime-bar — the live Slime Bar. The Storyteller itself runs in the demo pages in this repo: open `demo/demo.html` (lightweight demo) or `demo/drews-slime-bar-with-story.html` (the full game with the story button) in a browser — no server needed. The story button is not on the live site yet.
 
 This is Chalette Hodge's entry for the Muse Ember Hackathon (virtual, solo).
 Project due December 2, 2026, 9:00 PM ET. Winners announced December 7, 2026.
@@ -26,8 +26,9 @@ story about that exact slime — its colours, its topping, and its name.
    picks a topping, and names the slime.
 2. The child (or a grown-up helping) taps **"Hear Drew's story"**.
 3. The game sends only the button picks to a small Cloudflare Worker:
-   the slime colours, the topping, and the slime's name. Nothing typed,
-   no child's name, no photo, no personal detail, no account.
+   the slime colours, the topping, and the slime's name. Nothing typed
+   is sent — a name typed in the box stays on the picture only — and no
+   child's name, no photo, no personal detail, no account.
 4. The Worker asks **Muse Ember** (`muse-ember-1.0`, via the Meta Model API)
    for a two-sentence story about that slime, in Drew's warm, gentle voice.
 5. Drew's story appears on screen, ready to read aloud together. A **"Read it aloud"** button speaks the story in the phone's own built-in voice — nothing is recorded or sent anywhere; the words never leave the device. Tap again to stop.
@@ -37,6 +38,10 @@ story about that exact slime — its colours, its topping, and its name.
 The story is generated fresh for every slime, so no two slimes get quite
 the same story. The whole feature runs on Muse Ember — no other model is
 involved.
+
+**What's next.** Because of the result we had in this hackathon, we are
+considering using Ember on our website — adding the Storyteller to the
+live Slime Bar at belleflykids.com once the hackathon is done.
 
 ## Safety fallback: a child never sees a bad answer
 
@@ -74,8 +79,8 @@ short sentences):
 At that rate, the $10 hackathon credit covers roughly **160,000 stories**.
 Every live call is logged with its token counts and cost — see
 [docs/token-trace.md](docs/token-trace.md) — and the running total is
-checked against the $10 cap. If the total ever approaches the cap, the
-feature switches to canned stories only until more credit is added.
+checked against the $10 cap. If the total ever approaches the cap, we
+stop live calls and the feature runs on canned stories only.
 
 ## Repo layout
 
@@ -149,10 +154,11 @@ inside the $10 cap — the trace file is the proof.
 
 ## For parents: privacy
 
-- Only button picks leave the device: slime colours, topping, and the
-  slime's name.
-- Nothing is typed by the child, and no name, photo, voice, location,
-  or personal detail is ever sent or stored.
+- Only button picks and Drew's generated name leave the device: slime
+  colours, topping, and the slime's name.
+- A name typed in the box stays on the picture only — it is never sent
+  or stored. No name, photo, voice, location, or personal detail is
+  ever sent or stored.
 - No account, no sign-in, no ads, no tracking.
 - Stories are generated fresh per slime and are not kept after the visit,
   except for the anonymous token/cost log (token counts and cost only —
